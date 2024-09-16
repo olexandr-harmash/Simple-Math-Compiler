@@ -10,8 +10,8 @@ public class OperatorType
     // Статические свойства для различных операторов
     public static OperatorType Plus = new ("+");
     public static OperatorType Minus = new ("-");
-    public static OperatorType Multiply = new ("*");
-    public static OperatorType Divide = new ("/");
+    public static OperatorType QuestionMark = new ("?");
+    public static OperatorType Equals = new ("=");
 
     // Конструктор для инициализации оператора
     private OperatorType(string op)
@@ -23,5 +23,17 @@ public class OperatorType
     public override string ToString()
     {
         return Operator;
+    }
+
+    public static OperatorType? GetFromString(string op)
+    {
+        return op switch
+        {
+            "+" => Plus,
+            "-" => Minus,
+            "=" => Equals,
+            "?" => QuestionMark,
+            _ => null
+        };
     }
 }

@@ -10,8 +10,8 @@ public class TokenType
     // Лексема для чисел (регулярное выражение для целых чисел)
     public static TokenType Number = new (@"\d+");
 
-    // Лексема для операторов (регулярное выражение для операторов +, -, *, \, =, ?)
-    public static TokenType Operator = new (@"[\=\+\?\-\*\/]");
+    // Лексема для операторов (регулярное выражение для операторов +, -, =, ?)
+    public static TokenType Operator = new (@"[\=\+\?\-]");
 
     // Конструктор для инициализации регулярного выражения
     public TokenType(string regex)

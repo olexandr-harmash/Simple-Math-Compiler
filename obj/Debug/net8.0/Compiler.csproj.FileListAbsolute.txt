@@ -12,3 +12,4 @@ C:\Users\38099\Desktop\raw_math_compiler_1.0.0\Compiler\obj\Debug\net8.0\refint\
 C:\Users\38099\Desktop\raw_math_compiler_1.0.0\Compiler\obj\Debug\net8.0\Compiler.pdb
 C:\Users\38099\Desktop\raw_math_compiler_1.0.0\Compiler\obj\Debug\net8.0\Compiler.genruntimeconfig.cache
 C:\Users\38099\Desktop\raw_math_compiler_1.0.0\Compiler\obj\Debug\net8.0\ref\Compiler.dll
+C:\Users\38099\Desktop\raw_math_compiler_1.0.0\Compiler\obj\Debug\net8.0\Compiler.sourcelink.json

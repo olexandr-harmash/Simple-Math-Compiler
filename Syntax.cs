@@ -70,36 +70,73 @@ public class Instruction : Syntax
         Console.WriteLine("Instruction successfully parsed.");
         return new Instruction(expr, op, qmop);
     }
+
+    public int Compile()
+    {
+        return Compile_2(Expression);
+    }
+
+    private int Compile_2(Expression expression)
+    {
+        Console.WriteLine("Starting Compile_2");
+
+        int r = 0;
+
+        if (expression.SubExpression != null)
+        {
+            Console.WriteLine($"Processing SubExpression: {expression.SubExpression}");
+            r = Compile_2(expression.SubExpression);
+        }
+
+        if (expression.ArithmeticOperator == null)
+        {
+            Console.WriteLine($"No ArithmeticOperator. Returning Term.Number: {expression.Term.Number}");
+            return expression.Term.Number;
+        }
+
+        Console.WriteLine($"Operator: {expression.ArithmeticOperator}, Term.Number: {expression.Term.Number}, Accumulator: {r}");
+
+        //рефактор ошибки OperatorType не имеет поля ..., возникающей только внутри свич выражений
+        r = expression.ArithmeticOperator.ToString() switch 
+        {
+            "+" => expression.Term.Number + r,
+            "-" => expression.Term.Number - r,
+            _ => throw new InvalidOperationException($"Unsupported operator: {expression.ArithmeticOperator}"),
+        };
+
+        Console.WriteLine($"Result after operation: {r}");
+        return r;
+    }
 }
 
 // Класс для оператора вопроса
 public class QuestionMarkOperator : Syntax
 {
-    public char Operator { get; } = '?';
+    public OperatorType OperatorType { get; } = OperatorType.QuestionMark;
 
     public override string ToString()
     {
-        return $"{Operator}";
+        return $"{OperatorType}";
     }
 }
 
 // Класс для оператора равно
 public class EqualsOperator : Syntax
 {
-    public char Operator { get; } = '=';
+    public OperatorType OperatorType { get; } = OperatorType.Equals;
 
     public override string ToString()
     {
-        return $"{Operator}";
+        return $"{OperatorType}";
     }
 }
 
 // Класс для выражений, состоящих из терма, арифметического оператора и вложенного выражения
 public class Expression : Syntax
 {
-    public Term Term { get; private set; }
-    public ArithmeticOperator? ArithmeticOperator { get; private set; }
-    public Expression? SubExpression { get; private set; }
+    public Term Term { get; set; }
+    public ArithmeticOperator? ArithmeticOperator { get; set; }
+    public Expression? SubExpression { get; set; }
 
     public Expression(Term term, ArithmeticOperator? arithmeticOperator = null, Expression? subExpression = null)
     {
@@ -143,20 +180,21 @@ public class Expression : Syntax
         }
 
         // Проверяем, является ли следующая лексема оператором
-        bool isOp = lexemes[index] switch
-        {
-            "*" or "/" or "+" or "-" => true,
-            _ => false
-        };
+        var opt = OperatorType.GetFromString(lexemes[index]);
 
-        if (!isOp)
+        if (opt == null)
+        {
+            throw new Exception($"No operator found at position: {index}");
+        }
+        //TODO: refactor.
+        if (opt == OperatorType.Equals)
         {
             // Если оператор отсутствует, возвращаем Expression с только термом
             Console.WriteLine("No operator found, returning expression with only term.");
             return new Expression(term);
         }
 
-        var op = new ArithmeticOperator(lexemes[index][0]); // Предполагается, что лексема состоит из одного символа
+        var op = new ArithmeticOperator(opt); // Предполагается, что лексема состоит из одного символа
         Console.WriteLine($"Parsed arithmetic operator: {op}");
         index++;
 
@@ -187,15 +225,17 @@ public class Term : Syntax
 // Класс для арифметических операторов
 public class ArithmeticOperator : Syntax
 {
-    public char Operator { get; private set; }
+    public OperatorType OperatorType { get; private set; }
 
-    public ArithmeticOperator(char op)
+    public ArithmeticOperator(OperatorType op)
     {
-        Operator = op;
+        OperatorType = op;
     }
 
     public override string ToString()
     {
-        return Operator.ToString();
+        return OperatorType.ToString();
     }
 }
+
+

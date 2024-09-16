@@ -7,14 +7,29 @@
             <выражение> ::= <терм> 
                         | <терм> <оператор> <выражение>
             <терм> ::= <число>
-            <оператор> ::= "+" | "-" | "*" | "/"
+            <оператор> ::= "+" | "-"
             <присваивание> ::= "="
             <результат> ::= "?"
             <число> ::= [0-9]+
         ".
 
     Программа:
+    - Выполняет разбор цепочки символов.
     - Разбивает входящую строку на лексемы.
+    - Строит синтаксическое дерево.
+    
+    Минусы:
+    - Данная грамматика не позволяет учитывать приоритеты для операций *, /.
+    - Данное дерево строиться таким образом что обход слева-направо выполняет мат выражение наоборот.
+
+    *Для правильного решения задачи парсинга мат выражений с учетом приоритетов,
+     правильно использовать грамматику вида:
+        "
+            E -> T | E + T | E - T
+            T -> M | T * M | T / M
+            M -> a | b | c (E)
+        ".
+    Смотреть: "Конструирование компиляторов, Сергей Свердлов, 37 ст.".
 */
 
 using System.Text.RegularExpressions;
@@ -56,13 +71,13 @@ class Program
         try
         {
             int index = 0;
-            
+
             // Создаем синтаксическое дерево
             var instr = Instruction.BuildSyntaxTree(lexemes, ref index);
 
             // Логируем результаты
             Console.WriteLine("Parsed Instruction:");
-            Console.WriteLine($"Equals Operator: {instr.EqualsOperator.Operator}");
+            Console.WriteLine($"Equals Operator: {instr.EqualsOperator}");
             Console.WriteLine($"Expression Term: {instr.Expression.Term.Number}");
             Console.WriteLine($"Instruction: {instr}");
 
@@ -72,10 +87,31 @@ class Program
             Console.WriteLine($"Expression ToString: {instr.Expression}");
             Console.WriteLine($"EqualsOperator: {instr.EqualsOperator}");
             Console.WriteLine($"QuestionMarkOperator: {instr.QuestionMarkOperator}");
+
+            Console.WriteLine("\nSyntax Tree:");
+            Console.WriteLine(FormatSyntaxTree(instr.Expression, 0));
+
+            instr.Compile();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
         }
+    }
+
+    private static string FormatSyntaxTree(Expression expression, int level)
+    {
+        if (expression == null)
+            return string.Empty;
+
+        var indent = new string(' ', level * 4);
+        var result = $"{indent}Term: {expression.Term.Number}, Operator: {expression.ArithmeticOperator}\n";
+
+        if (expression.SubExpression != null)
+        {
+            result += $"{FormatSyntaxTree(expression.SubExpression, level + 1)}";
+        }
+
+        return result;
     }
 }
